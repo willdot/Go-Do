@@ -9,6 +9,7 @@ service Auth {
     rpc Auth(User) returns (Token) {}
     rpc ValidateToken(Token) returns (Token) {}
     rpc Update(User) returns (Response) {}
+    rpc ChangePassword(PasswordChange) returns (Token) {}
 }
 
 message User {
@@ -31,6 +32,11 @@ message Token {
     string token = 1;
     bool valid = 2;
     repeated Error errors = 3;
+}
+
+message PasswordChange {
+    string oldPassword = 1;
+    string newPassword = 2;
 }
 
 message Error {
