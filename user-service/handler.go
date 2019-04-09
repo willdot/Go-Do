@@ -1,7 +1,7 @@
 package main
 
 import (
-	pb "go-do/user-service/proto/auth"
+	pb "github.com/willdot/go-do/user-service/proto/auth"
 
 	"golang.org/x/net/context"
 )

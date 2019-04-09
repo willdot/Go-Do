@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	pb "go-do/user-service/proto/auth"
+	pb "github.com/willdot/go-do/user-service/proto/auth"
 
 	"github.com/micro/go-micro"
 )
