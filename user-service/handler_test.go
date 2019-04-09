@@ -321,6 +321,14 @@ func (f *fakeRepo) Update(user *pb.User) error {
 	return nil
 }
 
+func (f *fakeRepo) UpdatePassword(id, password string) error {
+
+	if f.returnError {
+		return errFake
+	}
+	return nil
+}
+
 var fakeUser = pb.User{
 	Name:     "Fake",
 	Email:    "fake@fake.com",

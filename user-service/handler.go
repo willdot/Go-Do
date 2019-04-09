@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"log"
 
 	pb "github.com/willdot/go-do/user-service/proto/auth"
@@ -18,7 +19,15 @@ type userHandler struct {
 }
 
 func (u *userHandler) Create(ctx context.Context, req *pb.User, res *pb.Response) error {
-	err := u.repo.Create(req)
+
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("error hashing password: %v", err)
+	}
+
+	req.Password = string(hashedPass)
+
+	err = u.repo.Create(req)
 
 	if err != nil {
 		return err
