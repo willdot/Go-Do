@@ -271,6 +271,23 @@ func TestAuth(t *testing.T) {
 		}
 	})
 }
+func TestPasswordChange(t *testing.T) {
+
+	service := createService(false)
+
+	response := pb.Token{}
+
+	request := pb.PasswordChange{
+		OldPassword: "test",
+		NewPassword: "new",
+	}
+
+	got := service.ChangePassword(createContext(), &request, &response)
+
+	if got != nil {
+		t.Errorf("wanted %v but got %v", nil, got)
+	}
+}
 
 type fakeRepo struct {
 	returnError bool

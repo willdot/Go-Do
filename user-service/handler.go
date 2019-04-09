@@ -114,7 +114,7 @@ func (u *userHandler) ValidateToken(ctx context.Context, req *pb.Token, res *pb.
 	return nil
 }
 
-func (u *userHandler) ChangePassword(ctx context.Context, req *pb.PasswordChange) *pb.Token {
+func (u *userHandler) ChangePassword(ctx context.Context, req *pb.PasswordChange, res *pb.Token) error {
 
 	return nil
 }
