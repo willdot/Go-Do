@@ -37,6 +37,8 @@ services:
       DB_KEYSPACE: "go_do"
       DB_HOST: "cassandra00"
       DB_PORT: "9042"
+      WAIT_HOSTS: cassandra00:9042
+      WAIT_AFTER_HOSTS: 10
     depends_on:
       - cassandra00
       
