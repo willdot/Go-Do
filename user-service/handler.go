@@ -116,5 +116,34 @@ func (u *userHandler) ValidateToken(ctx context.Context, req *pb.Token, res *pb.
 
 func (u *userHandler) ChangePassword(ctx context.Context, req *pb.PasswordChange, res *pb.Token) error {
 
+	user, err := u.repo.GetByEmail(req.Email)
+	if err != nil {
+		return err
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.OldPassword)); err != nil {
+		return err
+	}
+
+	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("error hashing password: %v", err)
+	}
+
+	user.Password = string(hashedPass)
+
+	err = u.repo.UpdatePassword(user.Id, req.NewPassword)
+
+	if err != nil {
+		return err
+	}
+
+	token, err := u.tokenService.Encode(user)
+
+	if err != nil {
+		return err
+	}
+
+	res.Token = token
 	return nil
 }

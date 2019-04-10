@@ -229,7 +229,6 @@ func TestAuth(t *testing.T) {
 		service := createService(false)
 
 		response := pb.Token{}
-		fakeUser.Password = "$2a$10$cSOEkdxPPOrX8h/t3/Aw5e.vludnAzMGU38I3Cv0V/GAAwaqyJDaK"
 
 		user := pb.User{
 			Password: "test",
@@ -258,7 +257,6 @@ func TestAuth(t *testing.T) {
 		service := createService(false)
 
 		response := pb.Token{}
-		fakeUser.Password = "$2a$10$cSOEkdxPPOrX8h/t3/Aw5e.vludnAzMGU38I3Cv0V/GAAwaqyJDaK"
 
 		user := pb.User{
 			Password: "wrong",
@@ -273,20 +271,62 @@ func TestAuth(t *testing.T) {
 }
 func TestPasswordChange(t *testing.T) {
 
-	service := createService(false)
+	t.Run("password changed successfully", func(t *testing.T) {
+		service := createService(false)
 
-	response := pb.Token{}
+		response := pb.Token{}
 
-	request := pb.PasswordChange{
-		OldPassword: "test",
-		NewPassword: "new",
-	}
+		request := pb.PasswordChange{
+			Email:       "fake@fake.com",
+			OldPassword: "test",
+			NewPassword: "new",
+		}
 
-	got := service.ChangePassword(createContext(), &request, &response)
+		got := service.ChangePassword(createContext(), &request, &response)
 
-	if got != nil {
-		t.Errorf("wanted %v but got %v", nil, got)
-	}
+		if got != nil {
+			t.Errorf("wanted %v but got %v", nil, got)
+		}
+	})
+
+	t.Run("user not found", func(t *testing.T) {
+		service := createService(true)
+
+		response := pb.Token{}
+
+		request := pb.PasswordChange{
+			Email:       "notreal",
+			OldPassword: "test",
+			NewPassword: "new",
+		}
+
+		got := service.ChangePassword(createContext(), &request, &response)
+
+		if got != errFake {
+			t.Errorf("wanted %v but got %v", nil, got)
+		}
+	})
+
+	t.Run("old password incorrect", func(t *testing.T) {
+		service := createService(false)
+
+		response := pb.Token{}
+
+		request := pb.PasswordChange{
+			Email:       "notreal",
+			OldPassword: "wrong",
+			NewPassword: "new",
+		}
+
+		got := service.ChangePassword(createContext(), &request, &response)
+
+		if !strings.Contains(got.Error(), "hashedPassword is not the hash of the given password") {
+			t.Errorf("wanted 'hashedPassword is not the hash of the given password......' but got %v", got)
+		}
+	})
+
+	
+
 }
 
 type fakeRepo struct {
@@ -349,7 +389,7 @@ func (f *fakeRepo) UpdatePassword(id, password string) error {
 var fakeUser = pb.User{
 	Name:     "Fake",
 	Email:    "fake@fake.com",
-	Password: "fake",
+	Password: "$2a$10$cSOEkdxPPOrX8h/t3/Aw5e.vludnAzMGU38I3Cv0V/GAAwaqyJDaK",
 	Company:  "fake",
 }
 
