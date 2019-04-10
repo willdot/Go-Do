@@ -1,74 +1,67 @@
 package main
 
 import (
-	"net/http"
 	"reflect"
 	"testing"
-	"time"
-
-	"golang.org/x/net/context"
 
 	pb "github.com/willdot/go-do/task-service/proto/task"
 )
 
 func TestGetTasks(t *testing.T) {
 
-	service := createService(false)
+	t.Run("get all and returns all tasks", func(t *testing.T) {
+		service := createService(false)
 
-	var want []*pb.Task
+		var want []*pb.Task
 
-	want = append(want, &fakeTask)
+		want = append(want, &fakeTask)
 
-	request := pb.Request{}
-	response := pb.Response{}
+		request := pb.Request{}
+		response := pb.Response{}
 
-	err := service.Get(createContext(), &request, &response)
+		err := service.Get(createContext(""), &request, &response)
 
-	if err != nil {
-		t.Errorf("wanted %v but got %v", nil, err)
-	}
+		if err != nil {
+			t.Errorf("wanted %v but got %v", nil, err)
+		}
 
-	if !reflect.DeepEqual(want, response.Tasks) {
-		t.Errorf("want %v got %v", want, response.Tasks)
-	}
+		if !reflect.DeepEqual(want, response.Tasks) {
+			t.Errorf("want %v got %v", want, response.Tasks)
+		}
+	})
 
-}
+	t.Run("get all for user", func(t *testing.T) {
 
-type fakeRepo struct {
-	returnError bool
-	tasks       []*pb.Task
-}
+		service := createService(false)
 
-func (f *fakeRepo) Get() ([]*pb.Task, error) {
-	return f.tasks, nil
-}
+		var want []*pb.Task
 
-var fakeTask = pb.Task{
-	Id:          "123",
-	Title:       "Test",
-	Description: "Do something",
-	UserId:      "111",
-	CreatedDate: 1,
-	DailyDo:     false,
-}
+		want = append(want, &fakeTask)
 
-func createService(returnError bool) taskHandler {
+		request := pb.Request{}
+		response := pb.Response{}
 
-	var tasks []*pb.Task
+		err := service.Get(createContext(""), &request, &response)
 
-	tasks = append(tasks, &fakeTask)
+		if err != nil {
+			t.Errorf("wanted %v but got %v", nil, err)
+		}
 
-	fakeRepo := &fakeRepo{returnError, tasks}
+		if !reflect.DeepEqual(want, response.Tasks) {
+			t.Errorf("want %v got %v", want, response.Tasks)
+		}
+	})
 
-	service := taskHandler{fakeRepo}
+	t.Run("get but returns an error", func(t *testing.T) {
+		service := createService(true)
 
-	return service
-}
+		request := pb.Request{}
+		response := pb.Response{}
 
-func createContext() context.Context {
-	req, _ := http.NewRequest(http.MethodPost, "/", nil)
+		err := service.Get(createContext(""), &request, &response)
 
-	ctx, _ := context.WithDeadline(req.Context(), time.Now())
-
-	return ctx
+		if err != errFake {
+			t.Errorf("wanted %v but got %v", nil, err)
+		}
+	})
 }

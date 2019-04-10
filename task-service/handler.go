@@ -4,15 +4,24 @@ import (
 	"golang.org/x/net/context"
 
 	pb "github.com/willdot/go-do/task-service/proto/task"
+	auth "github.com/willdot/go-do/user-service/proto/auth"
 )
 
 type taskHandler struct {
-	repo Repository
+	repo       Repository
+	userClient auth.AuthClient
 }
 
 func (t *taskHandler) Get(ctx context.Context, req *pb.Request, res *pb.Response) error {
 
-	tasks, err := t.repo.Get()
+	token := auth.Token{
+		Token: "",
+	}
+	validationResult, err := t.userClient.ValidateToken(ctx, &token)
+
+	userID := validationResult.UserId
+
+	tasks, err := t.repo.Get(userID)
 
 	if err != nil {
 		return err

@@ -124,6 +124,7 @@ func (u *userHandler) ValidateToken(ctx context.Context, req *pb.Token, res *pb.
 	}
 
 	res.Valid = true
+	res.UserId = claims.User.Id
 
 	return nil
 }

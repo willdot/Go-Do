@@ -6,5 +6,5 @@ import (
 
 // Repository ..
 type Repository interface {
-	Get() ([]*pb.Task, error)
+	Get(userID string) ([]*pb.Task, error)
 }
