@@ -111,6 +111,8 @@ func (u *userHandler) ValidateToken(ctx context.Context, req *pb.Token, res *pb.
 		return errUnknownUser
 	}
 
+	// Get the user from the repo so that we can compare the password in the token with the users actual password.
+	// Otherwise they may be using a token that was assigned before a password change
 	user, err := u.repo.Get(claims.User.Id)
 
 	if err != nil {
