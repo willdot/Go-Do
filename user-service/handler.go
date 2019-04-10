@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/micro/go-micro/metadata"
 	pb "github.com/willdot/go-do/user-service/proto/auth"
 
 	"golang.org/x/crypto/bcrypt"
@@ -101,6 +102,15 @@ func (u *userHandler) Auth(ctx context.Context, req *pb.User, res *pb.Token) err
 }
 
 func (u *userHandler) ValidateToken(ctx context.Context, req *pb.Token, res *pb.Token) error {
+
+	meta, ok := metadata.FromContext(ctx)
+
+	if !ok {
+		return errors.New("no auth meta data found in request")
+	}
+
+	token := meta["Token"]
+	log.Println("Authenticating token: ", token)
 
 	claims, err := u.tokenService.Decode(req.Token)
 	if err != nil {

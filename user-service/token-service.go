@@ -47,7 +47,7 @@ func (s *TokenService) Decode(tokenString string) (*CustomClaims, error) {
 
 // Encode a claim into a JWT
 func (s *TokenService) Encode(user *pb.User) (string, error) {
-	expireToken := s.expireTime //time.Now().Add(time.Hour * 72).Unix()
+	expireToken := s.expireTime
 
 	claims := CustomClaims{
 		user,
