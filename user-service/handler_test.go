@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 
 	pb "github.com/willdot/go-do/user-service/proto/auth"
@@ -204,6 +205,29 @@ func TestValidateToken(t *testing.T) {
 		}
 	})
 
+	t.Run("token password no longer valid", func(t *testing.T) {
+		service := createService(false)
+
+		hashedPass, _ := bcrypt.GenerateFromPassword([]byte("new"), bcrypt.DefaultCost)
+		user := pb.User{
+			Id:       "123",
+			Name:     "Fake",
+			Email:    "fake@fake.com",
+			Password: string(hashedPass),
+			Company:  "fake",
+		}
+
+		token, _ := service.tokenService.Encode(&user)
+		request := pb.Token{Token: token}
+		response := pb.Token{}
+
+		got := service.ValidateToken(createContext(), &request, &response)
+
+		if got != errTokenPasswordNotValid {
+			t.Errorf("wanted %v but got %v", nil, got)
+		}
+	})
+
 	t.Run("user not known", func(t *testing.T) {
 		service := createService(false)
 
@@ -325,8 +349,6 @@ func TestPasswordChange(t *testing.T) {
 		}
 	})
 
-	
-
 }
 
 type fakeRepo struct {
@@ -349,7 +371,7 @@ func (f *fakeRepo) Get(id string) (*pb.User, error) {
 	if f.returnError {
 		return nil, errFake
 	}
-	return nil, nil
+	return &fakeUser, nil
 }
 
 func (f *fakeRepo) Create(user *pb.User) error {

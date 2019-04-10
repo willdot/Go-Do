@@ -13,6 +13,8 @@ import (
 
 var errUnknownUser = errors.New("User not found")
 
+var errTokenPasswordNotValid = errors.New("Token password no longer valid")
+
 type userHandler struct {
 	repo         Repository
 	tokenService TokenService
@@ -107,6 +109,16 @@ func (u *userHandler) ValidateToken(ctx context.Context, req *pb.Token, res *pb.
 
 	if claims.User.Id == "" {
 		return errUnknownUser
+	}
+
+	user, err := u.repo.Get(claims.User.Id)
+
+	if err != nil {
+		return err
+	}
+
+	if user.Password != claims.User.Password {
+		return errTokenPasswordNotValid
 	}
 
 	res.Valid = true
