@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package task;
+
+service TaskService {
+    rpc Create(CreateTask) returns (Response) {}
+    rpc Update(UpdateTask) returns (Response) {}
+    rpc ChangeDailyDoStatus(DailyDoStatusRequest) returns (Response) {}
+    rpc CompleteTask(CompleteTaskRequest) returns (Response) {}
+}
+
+message Task {
+    string id = 1;
+    string title = 2;
+    string description = 3;
+    string userId = 4;
+    int64 createdDate = 5;
+    int64 completedDate = 6;
+    bool dailyDo = 7;
+}
+
+message Response {
+    Task task = 1;
+    repeated Task tasks = 2;
+    repeated Error errors = 3;
+}
+
+message Error {
+    int32 code = 1;
+    string description = 2;
+}
+
+message CreateTask {
+    string title = 1;
+    string description = 2;
+    bool dailyDo = 3;
+}
+
+message UpdateTask {
+    string taskId = 1;
+    string title = 2;
+    string description = 3;
+}
+
+message DailyDoStatusRequest {
+    string taskId = 1;
+    bool status = 2;
+}
+
+message CompleteTaskRequest {
+    string taskId = 1;
+    bool completed = 2;
+}
+
