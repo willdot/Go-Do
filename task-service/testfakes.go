@@ -96,11 +96,6 @@ func createContext(token string, addMetaData bool) context.Context {
 	return ctx
 }
 
-func addMetaDataToContext(ctx context.Context, token string) context.Context {
-
-	return ctx
-}
-
 type fakeUserHandler struct {
 	returnError bool
 }

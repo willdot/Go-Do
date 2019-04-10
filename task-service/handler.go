@@ -19,24 +19,11 @@ type taskHandler struct {
 
 func (t *taskHandler) Get(ctx context.Context, req *pb.Request, res *pb.Response) error {
 
-	suppliedToken, err := getTokenFromContext(ctx)
+	userID, err := t.getUserIDFromTokenInContext(ctx)
 
 	if err != nil {
 		return err
 	}
-
-	token := auth.Token{
-		Token: suppliedToken,
-	}
-
-	validationResult, err := t.userClient.ValidateToken(ctx, &token)
-
-	if err != nil {
-		return err
-	}
-
-	userID := validationResult.UserId
-
 	tasks, err := t.repo.Get(userID)
 
 	if err != nil {
@@ -46,6 +33,29 @@ func (t *taskHandler) Get(ctx context.Context, req *pb.Request, res *pb.Response
 	res.Tasks = tasks
 
 	return nil
+}
+
+// so that we can get the user id to get tasks for, we get the supplied token, validate it,
+// and then get the user id. This means not having to send the user id in the request, which
+// limits the chance of random api calls being made with guessed user id
+func (t *taskHandler) getUserIDFromTokenInContext(ctx context.Context) (string, error) {
+	suppliedToken, err := getTokenFromContext(ctx)
+
+	if err != nil {
+		return "", err
+	}
+
+	token := auth.Token{
+		Token: suppliedToken,
+	}
+
+	validationResult, err := t.userClient.ValidateToken(ctx, &token)
+
+	if err != nil {
+		return "", err
+	}
+
+	return validationResult.UserId, nil
 }
 
 func getTokenFromContext(ctx context.Context) (string, error) {
