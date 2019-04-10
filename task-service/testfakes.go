@@ -1,14 +1,13 @@
 package main
 
 import (
-	"Go-Do/user-service/proto/auth"
 	"errors"
 	"net/http"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/micro/go-micro/client"
 	pb "github.com/willdot/go-do/task-service/proto/task"
+	auth "github.com/willdot/go-do/user-service/proto/auth"
 	"golang.org/x/net/context"
 )
 
@@ -63,7 +62,6 @@ func createContext(token string) context.Context {
 // CustomClaims ..
 type CustomClaims struct {
 	User *auth.User
-	jwt.StandardClaims
 }
 
 // Authable ..
