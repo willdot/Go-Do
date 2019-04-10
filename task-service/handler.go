@@ -6,18 +6,18 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/micro/go-micro/metadata"
-	pb "github.com/willdot/go-do/task-service/proto/task"
-	auth "github.com/willdot/go-do/user-service/proto/auth"
+	taskPb "github.com/willdot/go-do/task-service/proto/task"
+	authPb "github.com/willdot/go-do/user-service/proto/auth"
 )
 
 var errNoMetaData = errors.New("no auth meta data found in request")
 
 type taskHandler struct {
 	repo       Repository
-	userClient auth.AuthClient
+	userClient authPb.AuthClient
 }
 
-func (t *taskHandler) Get(ctx context.Context, req *pb.Request, res *pb.Response) error {
+func (t *taskHandler) Get(ctx context.Context, req *taskPb.Request, res *taskPb.Response) error {
 
 	userID, err := t.getUserIDFromTokenInContext(ctx)
 
@@ -45,7 +45,7 @@ func (t *taskHandler) getUserIDFromTokenInContext(ctx context.Context) (string, 
 		return "", err
 	}
 
-	token := auth.Token{
+	token := authPb.Token{
 		Token: suppliedToken,
 	}
 

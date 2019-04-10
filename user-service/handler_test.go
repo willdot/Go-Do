@@ -6,7 +6,7 @@ import (
 
 	"golang.org/x/crypto/bcrypt"
 
-	pb "github.com/willdot/go-do/user-service/proto/auth"
+	authPb "github.com/willdot/go-do/user-service/proto/auth"
 )
 
 func TestCreate(t *testing.T) {
@@ -14,14 +14,14 @@ func TestCreate(t *testing.T) {
 	t.Run("returns a user", func(t *testing.T) {
 		service := createService(false)
 
-		user := pb.User{
+		user := authPb.User{
 			Name:     "Fake",
 			Email:    "fake@fake.com",
 			Password: "fake",
 			Company:  "fake",
 		}
 
-		response := pb.Response{}
+		response := authPb.Response{}
 
 		got := service.Create(createContext(), &user, &response)
 
@@ -33,14 +33,14 @@ func TestCreate(t *testing.T) {
 	t.Run("returns an error", func(t *testing.T) {
 		service := createService(true)
 
-		user := pb.User{
+		user := authPb.User{
 			Name:     "Fake",
 			Email:    "fake@fake.com",
 			Password: "fake",
 			Company:  "fake",
 		}
 
-		response := pb.Response{}
+		response := authPb.Response{}
 
 		got := service.Create(createContext(), &user, &response)
 
@@ -56,14 +56,14 @@ func TestGet(t *testing.T) {
 	t.Run("returns a user", func(t *testing.T) {
 		service := createService(false)
 
-		user := pb.User{
+		user := authPb.User{
 			Name:     "Fake",
 			Email:    "fake@fake.com",
 			Password: "fake",
 			Company:  "fake",
 		}
 
-		response := pb.Response{}
+		response := authPb.Response{}
 
 		got := service.Get(createContext(), &user, &response)
 
@@ -75,14 +75,14 @@ func TestGet(t *testing.T) {
 	t.Run("returns an error", func(t *testing.T) {
 		service := createService(true)
 
-		user := pb.User{
+		user := authPb.User{
 			Name:     "Fake",
 			Email:    "fake@fake.com",
 			Password: "fake",
 			Company:  "fake",
 		}
 
-		response := pb.Response{}
+		response := authPb.Response{}
 
 		got := service.Get(createContext(), &user, &response)
 
@@ -98,9 +98,9 @@ func TestGetAll(t *testing.T) {
 	t.Run("returns a user", func(t *testing.T) {
 		service := createService(false)
 
-		request := pb.Request{}
+		request := authPb.Request{}
 
-		response := pb.Response{}
+		response := authPb.Response{}
 
 		got := service.GetAll(createContext(), &request, &response)
 
@@ -112,9 +112,9 @@ func TestGetAll(t *testing.T) {
 	t.Run("returns an error", func(t *testing.T) {
 		service := createService(true)
 
-		request := pb.Request{}
+		request := authPb.Request{}
 
-		response := pb.Response{}
+		response := authPb.Response{}
 
 		got := service.GetAll(createContext(), &request, &response)
 
@@ -130,13 +130,13 @@ func TestUpdate(t *testing.T) {
 	t.Run("returns a user", func(t *testing.T) {
 		service := createService(false)
 
-		user := pb.User{
+		user := authPb.User{
 			Name:     "Fake",
 			Email:    "fake@fake.com",
 			Password: "fake",
 			Company:  "fake",
 		}
-		response := pb.Response{}
+		response := authPb.Response{}
 
 		got := service.Update(createContext(), &user, &response)
 
@@ -148,13 +148,13 @@ func TestUpdate(t *testing.T) {
 	t.Run("returns an error", func(t *testing.T) {
 		service := createService(true)
 
-		user := pb.User{
+		user := authPb.User{
 			Name:     "Fake",
 			Email:    "fake@fake.com",
 			Password: "fake",
 			Company:  "fake",
 		}
-		response := pb.Response{}
+		response := authPb.Response{}
 
 		got := service.Update(createContext(), &user, &response)
 
@@ -174,8 +174,8 @@ func TestValidateToken(t *testing.T) {
 		user.Id = "123"
 
 		token, _ := service.tokenService.Encode(user)
-		request := pb.Token{Token: token}
-		response := pb.Token{}
+		request := authPb.Token{Token: token}
+		response := authPb.Token{}
 
 		got := service.ValidateToken(createContext(), &request, &response)
 
@@ -191,8 +191,8 @@ func TestValidateToken(t *testing.T) {
 		user.Id = "123"
 
 		token, _ := service.tokenService.Encode(user)
-		request := pb.Token{Token: token}
-		response := pb.Token{}
+		request := authPb.Token{Token: token}
+		response := authPb.Token{}
 
 		got := service.ValidateToken(createContext(), &request, &response)
 
@@ -205,7 +205,7 @@ func TestValidateToken(t *testing.T) {
 		service := createService(false)
 
 		hashedPass, _ := bcrypt.GenerateFromPassword([]byte("new"), bcrypt.DefaultCost)
-		user := pb.User{
+		user := authPb.User{
 			Id:       "123",
 			Name:     "Fake",
 			Email:    "fake@fake.com",
@@ -214,8 +214,8 @@ func TestValidateToken(t *testing.T) {
 		}
 
 		token, _ := service.tokenService.Encode(&user)
-		request := pb.Token{Token: token}
-		response := pb.Token{}
+		request := authPb.Token{Token: token}
+		response := authPb.Token{}
 
 		got := service.ValidateToken(createContext(), &request, &response)
 
@@ -231,8 +231,8 @@ func TestValidateToken(t *testing.T) {
 		user.Id = ""
 
 		token, _ := service.tokenService.Encode(user)
-		request := pb.Token{Token: token}
-		response := pb.Token{}
+		request := authPb.Token{Token: token}
+		response := authPb.Token{}
 
 		got := service.ValidateToken(createContext(), &request, &response)
 
@@ -248,9 +248,9 @@ func TestAuth(t *testing.T) {
 	t.Run("auth is fine", func(t *testing.T) {
 		service := createService(false)
 
-		response := pb.Token{}
+		response := authPb.Token{}
 
-		user := pb.User{
+		user := authPb.User{
 			Password: "test",
 		}
 
@@ -264,7 +264,7 @@ func TestAuth(t *testing.T) {
 	t.Run("user not found", func(t *testing.T) {
 		service := createService(true)
 
-		response := pb.Token{}
+		response := authPb.Token{}
 
 		got := service.Auth(createContext(), &fakeUser, &response)
 
@@ -276,9 +276,9 @@ func TestAuth(t *testing.T) {
 	t.Run("password doesn't match", func(t *testing.T) {
 		service := createService(false)
 
-		response := pb.Token{}
+		response := authPb.Token{}
 
-		user := pb.User{
+		user := authPb.User{
 			Password: "wrong",
 		}
 
@@ -294,9 +294,9 @@ func TestPasswordChange(t *testing.T) {
 	t.Run("password changed successfully", func(t *testing.T) {
 		service := createService(false)
 
-		response := pb.Token{}
+		response := authPb.Token{}
 
-		request := pb.PasswordChange{
+		request := authPb.PasswordChange{
 			Email:       "fake@fake.com",
 			OldPassword: "test",
 			NewPassword: "new",
@@ -312,9 +312,9 @@ func TestPasswordChange(t *testing.T) {
 	t.Run("user not found", func(t *testing.T) {
 		service := createService(true)
 
-		response := pb.Token{}
+		response := authPb.Token{}
 
-		request := pb.PasswordChange{
+		request := authPb.PasswordChange{
 			Email:       "notreal",
 			OldPassword: "test",
 			NewPassword: "new",
@@ -330,9 +330,9 @@ func TestPasswordChange(t *testing.T) {
 	t.Run("old password incorrect", func(t *testing.T) {
 		service := createService(false)
 
-		response := pb.Token{}
+		response := authPb.Token{}
 
-		request := pb.PasswordChange{
+		request := authPb.PasswordChange{
 			Email:       "notreal",
 			OldPassword: "wrong",
 			NewPassword: "new",

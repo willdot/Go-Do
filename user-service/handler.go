@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	pb "github.com/willdot/go-do/user-service/proto/auth"
+	authPb "github.com/willdot/go-do/user-service/proto/auth"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
@@ -20,7 +20,7 @@ type userHandler struct {
 	tokenService TokenService
 }
 
-func (u *userHandler) Create(ctx context.Context, req *pb.User, res *pb.Response) error {
+func (u *userHandler) Create(ctx context.Context, req *authPb.User, res *authPb.Response) error {
 
 	hashedPass, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -40,7 +40,7 @@ func (u *userHandler) Create(ctx context.Context, req *pb.User, res *pb.Response
 	return nil
 }
 
-func (u *userHandler) Get(ctx context.Context, req *pb.User, res *pb.Response) error {
+func (u *userHandler) Get(ctx context.Context, req *authPb.User, res *authPb.Response) error {
 
 	user, err := u.repo.Get(req.Id)
 
@@ -52,7 +52,7 @@ func (u *userHandler) Get(ctx context.Context, req *pb.User, res *pb.Response) e
 	return nil
 }
 
-func (u *userHandler) GetAll(ctx context.Context, req *pb.Request, res *pb.Response) error {
+func (u *userHandler) GetAll(ctx context.Context, req *authPb.Request, res *authPb.Response) error {
 
 	users, err := u.repo.GetAll()
 
@@ -65,7 +65,7 @@ func (u *userHandler) GetAll(ctx context.Context, req *pb.Request, res *pb.Respo
 	return nil
 }
 
-func (u *userHandler) Update(ctx context.Context, req *pb.User, res *pb.Response) error {
+func (u *userHandler) Update(ctx context.Context, req *authPb.User, res *authPb.Response) error {
 	err := u.repo.Update(req)
 
 	if err != nil {
@@ -77,7 +77,7 @@ func (u *userHandler) Update(ctx context.Context, req *pb.User, res *pb.Response
 	return nil
 }
 
-func (u *userHandler) Auth(ctx context.Context, req *pb.User, res *pb.Token) error {
+func (u *userHandler) Auth(ctx context.Context, req *authPb.User, res *authPb.Token) error {
 
 	log.Println("Logging in with: ", req.Email, req.Password)
 
@@ -100,7 +100,7 @@ func (u *userHandler) Auth(ctx context.Context, req *pb.User, res *pb.Token) err
 	return nil
 }
 
-func (u *userHandler) ValidateToken(ctx context.Context, req *pb.Token, res *pb.Token) error {
+func (u *userHandler) ValidateToken(ctx context.Context, req *authPb.Token, res *authPb.Token) error {
 
 	claims, err := u.tokenService.Decode(req.Token)
 	if err != nil {
@@ -129,7 +129,7 @@ func (u *userHandler) ValidateToken(ctx context.Context, req *pb.Token, res *pb.
 	return nil
 }
 
-func (u *userHandler) ChangePassword(ctx context.Context, req *pb.PasswordChange, res *pb.Token) error {
+func (u *userHandler) ChangePassword(ctx context.Context, req *authPb.PasswordChange, res *authPb.Token) error {
 
 	user, err := u.repo.GetByEmail(req.Email)
 	if err != nil {

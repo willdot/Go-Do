@@ -1,10 +1,10 @@
 package main
 
 import (
-	pb "github.com/willdot/go-do/task-service/proto/task"
+	taskPb "github.com/willdot/go-do/task-service/proto/task"
 )
 
 // Repository ..
 type Repository interface {
-	Get(userID string) ([]*pb.Task, error)
+	Get(userID string) ([]*taskPb.Task, error)
 }

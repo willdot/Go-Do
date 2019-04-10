@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	pb "github.com/willdot/go-do/user-service/proto/auth"
+	authPb "github.com/willdot/go-do/user-service/proto/auth"
 )
 
 var (
@@ -11,14 +11,14 @@ var (
 
 // CustomClaims ..
 type CustomClaims struct {
-	User *pb.User
+	User *authPb.User
 	jwt.StandardClaims
 }
 
 // Authable ..
 type Authable interface {
 	Decode(token string) (*CustomClaims, error)
-	Encode(user *pb.User) (string, error)
+	Encode(user *authPb.User) (string, error)
 }
 
 // TokenService ..
@@ -46,7 +46,7 @@ func (s *TokenService) Decode(tokenString string) (*CustomClaims, error) {
 }
 
 // Encode a claim into a JWT
-func (s *TokenService) Encode(user *pb.User) (string, error) {
+func (s *TokenService) Encode(user *authPb.User) (string, error) {
 	expireToken := s.expireTime
 
 	claims := CustomClaims{

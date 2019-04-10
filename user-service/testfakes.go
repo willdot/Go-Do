@@ -6,17 +6,17 @@ import (
 	"net/http"
 	"time"
 
-	pb "github.com/willdot/go-do/user-service/proto/auth"
+	authPb "github.com/willdot/go-do/user-service/proto/auth"
 )
 
 type fakeRepo struct {
 	returnError bool
-	users       []*pb.User
+	users       []*authPb.User
 }
 
 var errFake = errors.New("This is a fake error message")
 
-func (f *fakeRepo) GetAll() ([]*pb.User, error) {
+func (f *fakeRepo) GetAll() ([]*authPb.User, error) {
 
 	if f.returnError {
 		return nil, errFake
@@ -24,7 +24,7 @@ func (f *fakeRepo) GetAll() ([]*pb.User, error) {
 	return f.users, nil
 }
 
-func (f *fakeRepo) Get(id string) (*pb.User, error) {
+func (f *fakeRepo) Get(id string) (*authPb.User, error) {
 
 	if f.returnError {
 		return nil, errFake
@@ -32,7 +32,7 @@ func (f *fakeRepo) Get(id string) (*pb.User, error) {
 	return &fakeUser, nil
 }
 
-func (f *fakeRepo) Create(user *pb.User) error {
+func (f *fakeRepo) Create(user *authPb.User) error {
 
 	if f.returnError {
 		return errFake
@@ -40,7 +40,7 @@ func (f *fakeRepo) Create(user *pb.User) error {
 	return nil
 }
 
-func (f *fakeRepo) GetByEmail(email string) (*pb.User, error) {
+func (f *fakeRepo) GetByEmail(email string) (*authPb.User, error) {
 
 	if f.returnError {
 		return nil, errFake
@@ -50,7 +50,7 @@ func (f *fakeRepo) GetByEmail(email string) (*pb.User, error) {
 	return user, nil
 }
 
-func (f *fakeRepo) Update(user *pb.User) error {
+func (f *fakeRepo) Update(user *authPb.User) error {
 
 	if f.returnError {
 		return errFake
@@ -66,7 +66,7 @@ func (f *fakeRepo) UpdatePassword(id, password string) error {
 	return nil
 }
 
-var fakeUser = pb.User{
+var fakeUser = authPb.User{
 	Name:     "Fake",
 	Email:    "fake@fake.com",
 	Password: "$2a$10$cSOEkdxPPOrX8h/t3/Aw5e.vludnAzMGU38I3Cv0V/GAAwaqyJDaK",
@@ -75,7 +75,7 @@ var fakeUser = pb.User{
 
 func createService(returnError bool) userHandler {
 
-	var users []*pb.User
+	var users []*authPb.User
 
 	users = append(users, &fakeUser)
 

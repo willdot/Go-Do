@@ -7,9 +7,14 @@ import (
 
 	"github.com/micro/go-micro/client"
 	"github.com/micro/go-micro/metadata"
-	pb "github.com/willdot/go-do/task-service/proto/task"
-	auth "github.com/willdot/go-do/user-service/proto/auth"
+	taskPb "github.com/willdot/go-do/task-service/proto/task"
+	authPb "github.com/willdot/go-do/user-service/proto/auth"
 	"golang.org/x/net/context"
+)
+
+const (
+	userID1 = "111"
+	userID2 = "222"
 )
 
 var errFake = errors.New("This is a fake error message")
@@ -17,16 +22,16 @@ var errFake = errors.New("This is a fake error message")
 type fakeRepo struct {
 	// returnError is used as a flag to return a fake error
 	returnError bool
-	tasks       []*pb.Task
+	tasks       []*taskPb.Task
 }
 
-func (f *fakeRepo) Get(userID string) ([]*pb.Task, error) {
+func (f *fakeRepo) Get(userID string) ([]*taskPb.Task, error) {
 
 	if f.returnError {
 		return nil, errFake
 	}
 
-	var tasks []*pb.Task
+	var tasks []*taskPb.Task
 
 	for _, v := range f.tasks {
 		if v.UserId == userID {
@@ -37,36 +42,36 @@ func (f *fakeRepo) Get(userID string) ([]*pb.Task, error) {
 	return tasks, nil
 }
 
-var fakeTask1 = pb.Task{
+var fakeTask1 = taskPb.Task{
 	Id:          "123",
 	Title:       "Test1",
 	Description: "Do something",
-	UserId:      "111",
+	UserId:      userID1,
 	CreatedDate: 1,
 	DailyDo:     false,
 }
 
-var fakeTask2 = pb.Task{
+var fakeTask2 = taskPb.Task{
 	Id:          "123",
 	Title:       "Test2",
 	Description: "Do something",
-	UserId:      "111",
+	UserId:      userID1,
 	CreatedDate: 1,
 	DailyDo:     false,
 }
 
-var fakeTask3 = pb.Task{
+var fakeTask3 = taskPb.Task{
 	Id:          "123",
 	Title:       "Test3",
 	Description: "Do something",
-	UserId:      "222",
+	UserId:      userID2,
 	CreatedDate: 1,
 	DailyDo:     false,
 }
 
 func createService(repoReturnError, userHandlerReturnError bool) taskHandler {
 
-	var tasks []*pb.Task
+	var tasks []*taskPb.Task
 
 	tasks = append(tasks, &fakeTask1, &fakeTask2, &fakeTask3)
 
@@ -100,40 +105,40 @@ type fakeUserHandler struct {
 	returnError bool
 }
 
-func (u *fakeUserHandler) Create(ctx context.Context, req *auth.User, opts ...client.CallOption) (*auth.Response, error) {
+func (u *fakeUserHandler) Create(ctx context.Context, req *authPb.User, opts ...client.CallOption) (*authPb.Response, error) {
 	return nil, nil
 }
 
-func (u *fakeUserHandler) Get(ctx context.Context, req *auth.User, opts ...client.CallOption) (*auth.Response, error) {
+func (u *fakeUserHandler) Get(ctx context.Context, req *authPb.User, opts ...client.CallOption) (*authPb.Response, error) {
 	return nil, nil
 }
 
-func (u *fakeUserHandler) GetAll(ctx context.Context, req *auth.Request, opts ...client.CallOption) (*auth.Response, error) {
-	return nil, nil
-
-}
-
-func (u *fakeUserHandler) Update(ctx context.Context, req *auth.User, opts ...client.CallOption) (*auth.Response, error) {
-	return nil, nil
-}
-
-func (u *fakeUserHandler) Auth(ctx context.Context, req *auth.User, opts ...client.CallOption) (*auth.Token, error) {
+func (u *fakeUserHandler) GetAll(ctx context.Context, req *authPb.Request, opts ...client.CallOption) (*authPb.Response, error) {
 	return nil, nil
 
 }
 
-func (u *fakeUserHandler) ValidateToken(ctx context.Context, req *auth.Token, opts ...client.CallOption) (*auth.Token, error) {
+func (u *fakeUserHandler) Update(ctx context.Context, req *authPb.User, opts ...client.CallOption) (*authPb.Response, error) {
+	return nil, nil
+}
+
+func (u *fakeUserHandler) Auth(ctx context.Context, req *authPb.User, opts ...client.CallOption) (*authPb.Token, error) {
+	return nil, nil
+
+}
+
+func (u *fakeUserHandler) ValidateToken(ctx context.Context, req *authPb.Token, opts ...client.CallOption) (*authPb.Token, error) {
 
 	if u.returnError {
 		return nil, errFake
 	}
-	token := &auth.Token{
-		UserId: "111",
+	token := &authPb.Token{
+		UserId: userID1,
 	}
 
 	return token, nil
 }
 
-func (u *fakeUserHandler) ChangePassword(ctx context.Context, req *auth.PasswordChange, opts ...client.CallOption) (*auth.Token, error) {
+func (u *fakeUserHandler) ChangePassword(ctx context.Context, req *authPb.PasswordChange, opts ...client.CallOption) (*authPb.Token, error) {
 	return nil, nil
 }
