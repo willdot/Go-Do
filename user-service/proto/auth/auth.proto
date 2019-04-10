@@ -35,8 +35,9 @@ message Token {
 }
 
 message PasswordChange {
-    string oldPassword = 1;
-    string newPassword = 2;
+    string email = 1;
+    string oldPassword = 2;
+    string newPassword = 3;
 }
 
 message Error {
