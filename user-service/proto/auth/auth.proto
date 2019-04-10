@@ -31,7 +31,8 @@ message Response {
 message Token {
     string token = 1;
     bool valid = 2;
-    repeated Error errors = 3;
+    string userId = 3;
+    repeated Error errors = 4;
 }
 
 message PasswordChange {
