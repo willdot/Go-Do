@@ -3,10 +3,14 @@ syntax = "proto3";
 package task;
 
 service TaskService {
+    rpc Get(Request) returns (Response) {}
     rpc Create(CreateTask) returns (Response) {}
     rpc Update(UpdateTask) returns (Response) {}
     rpc ChangeDailyDoStatus(DailyDoStatusRequest) returns (Response) {}
     rpc CompleteTask(CompleteTaskRequest) returns (Response) {}
+}
+
+message Request {
 }
 
 message Task {
