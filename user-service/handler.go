@@ -132,7 +132,7 @@ func (u *userHandler) ChangePassword(ctx context.Context, req *pb.PasswordChange
 
 	user.Password = string(hashedPass)
 
-	err = u.repo.UpdatePassword(user.Id, req.NewPassword)
+	err = u.repo.UpdatePassword(user.Id, user.Password)
 
 	if err != nil {
 		return err
