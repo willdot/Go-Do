@@ -73,6 +73,13 @@ var fakeUser = authPb.User{
 	Company:  "fake",
 }
 
+var fakeUserToCreate = authPb.User{
+	Name:     "Fake",
+	Email:    "fake@fake.com",
+	Password: "fake",
+	Company:  "fake",
+}
+
 func createService(returnError bool) userHandler {
 
 	var users []*authPb.User
@@ -97,7 +104,10 @@ func createService(returnError bool) userHandler {
 func createContext() context.Context {
 	req, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	ctx, _ := context.WithDeadline(req.Context(), time.Now())
+	ctx, cancel := context.WithDeadline(req.Context(), time.Now())
+
+	// error given when cancel func returned from above call is discarded, so just defering it to remove the error. Has no impact on a test
+	defer cancel()
 
 	return ctx
 }

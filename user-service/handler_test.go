@@ -20,16 +20,9 @@ func TestCreate(t *testing.T) {
 	t.Run("returns a user", func(t *testing.T) {
 		service := createService(false)
 
-		user := authPb.User{
-			Name:     "Fake",
-			Email:    "fake@fake.com",
-			Password: "fake",
-			Company:  "fake",
-		}
-
 		response := authPb.Response{}
 
-		err := service.Create(createContext(), &user, &response)
+		err := service.Create(createContext(), &fakeUserToCreate, &response)
 
 		assertError(err, nil, t)
 	})
@@ -37,16 +30,9 @@ func TestCreate(t *testing.T) {
 	t.Run("returns an error", func(t *testing.T) {
 		service := createService(true)
 
-		user := authPb.User{
-			Name:     "Fake",
-			Email:    "fake@fake.com",
-			Password: "fake",
-			Company:  "fake",
-		}
-
 		response := authPb.Response{}
 
-		err := service.Create(createContext(), &user, &response)
+		err := service.Create(createContext(), &fakeUserToCreate, &response)
 
 		assertError(err, errFake, t)
 	})
@@ -58,16 +44,9 @@ func TestGet(t *testing.T) {
 	t.Run("returns a user", func(t *testing.T) {
 		service := createService(false)
 
-		user := authPb.User{
-			Name:     "Fake",
-			Email:    "fake@fake.com",
-			Password: "fake",
-			Company:  "fake",
-		}
-
 		response := authPb.Response{}
 
-		err := service.Get(createContext(), &user, &response)
+		err := service.Get(createContext(), &fakeUser, &response)
 
 		assertError(err, nil, t)
 	})
@@ -75,16 +54,9 @@ func TestGet(t *testing.T) {
 	t.Run("returns an error", func(t *testing.T) {
 		service := createService(true)
 
-		user := authPb.User{
-			Name:     "Fake",
-			Email:    "fake@fake.com",
-			Password: "fake",
-			Company:  "fake",
-		}
-
 		response := authPb.Response{}
 
-		err := service.Get(createContext(), &user, &response)
+		err := service.Get(createContext(), &fakeUser, &response)
 
 		assertError(err, errFake, t)
 	})
@@ -124,15 +96,9 @@ func TestUpdate(t *testing.T) {
 	t.Run("returns a user", func(t *testing.T) {
 		service := createService(false)
 
-		user := authPb.User{
-			Name:     "Fake",
-			Email:    "fake@fake.com",
-			Password: "fake",
-			Company:  "fake",
-		}
 		response := authPb.Response{}
 
-		err := service.Update(createContext(), &user, &response)
+		err := service.Update(createContext(), &fakeUser, &response)
 
 		assertError(err, nil, t)
 	})
@@ -140,15 +106,9 @@ func TestUpdate(t *testing.T) {
 	t.Run("returns an error", func(t *testing.T) {
 		service := createService(true)
 
-		user := authPb.User{
-			Name:     "Fake",
-			Email:    "fake@fake.com",
-			Password: "fake",
-			Company:  "fake",
-		}
 		response := authPb.Response{}
 
-		err := service.Update(createContext(), &user, &response)
+		err := service.Update(createContext(), &fakeUser, &response)
 
 		assertError(err, errFake, t)
 	})
