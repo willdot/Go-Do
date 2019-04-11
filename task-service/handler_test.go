@@ -7,6 +7,12 @@ import (
 	taskPb "github.com/willdot/go-do/task-service/proto/task"
 )
 
+func assertError(got, want error, t *testing.T) {
+	if got != want {
+		t.Errorf("got error '%v' but want error '%v'", got, want)
+	}
+}
+
 func TestGetTasks(t *testing.T) {
 
 	t.Run("get but returns an error in repo", func(t *testing.T) {
@@ -17,9 +23,7 @@ func TestGetTasks(t *testing.T) {
 
 		err := service.Get(createContext("t", true), &request, &response)
 
-		if err != errFake {
-			t.Errorf("wanted %v but got %v", nil, err)
-		}
+		assertError(err, errFake, t)
 	})
 
 	t.Run("get but returns an error in user service", func(t *testing.T) {
@@ -30,9 +34,7 @@ func TestGetTasks(t *testing.T) {
 
 		err := service.Get(createContext("t", true), &request, &response)
 
-		if err != errFake {
-			t.Errorf("wanted %v but got %v", nil, err)
-		}
+		assertError(err, errFake, t)
 	})
 
 	t.Run("get but returns an error for no token in metadata", func(t *testing.T) {
@@ -43,9 +45,7 @@ func TestGetTasks(t *testing.T) {
 
 		err := service.Get(createContext("", true), &request, &response)
 
-		if err != errFake {
-			t.Errorf("wanted %v but got %v", nil, err)
-		}
+		assertError(err, errFake, t)
 	})
 
 	t.Run("get but returns an error for metadata provided", func(t *testing.T) {
@@ -56,9 +56,7 @@ func TestGetTasks(t *testing.T) {
 
 		err := service.Get(createContext("", false), &request, &response)
 
-		if err != errNoMetaData {
-			t.Errorf("wanted %v but got %v", nil, err)
-		}
+		assertError(err, errNoMetaData, t)
 	})
 
 	t.Run("get all for user 1", func(t *testing.T) {
@@ -74,9 +72,7 @@ func TestGetTasks(t *testing.T) {
 
 		err := service.Get(createContext("t", true), &request, &response)
 
-		if err != nil {
-			t.Errorf("wanted %v but got %v", nil, err)
-		}
+		assertError(err, nil, t)
 
 		if !reflect.DeepEqual(want, response.Tasks) {
 			t.Errorf("want %v got %v", want, response.Tasks)

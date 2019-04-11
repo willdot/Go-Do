@@ -9,6 +9,12 @@ import (
 	authPb "github.com/willdot/go-do/user-service/proto/auth"
 )
 
+func assertError(got, want error, t *testing.T) {
+	if got != want {
+		t.Errorf("got error '%v' but want error '%v'", got, want)
+	}
+}
+
 func TestCreate(t *testing.T) {
 
 	t.Run("returns a user", func(t *testing.T) {
@@ -23,11 +29,9 @@ func TestCreate(t *testing.T) {
 
 		response := authPb.Response{}
 
-		got := service.Create(createContext(), &user, &response)
+		err := service.Create(createContext(), &user, &response)
 
-		if got != nil {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, nil, t)
 	})
 
 	t.Run("returns an error", func(t *testing.T) {
@@ -42,11 +46,9 @@ func TestCreate(t *testing.T) {
 
 		response := authPb.Response{}
 
-		got := service.Create(createContext(), &user, &response)
+		err := service.Create(createContext(), &user, &response)
 
-		if got != errFake {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, errFake, t)
 	})
 
 }
@@ -65,11 +67,9 @@ func TestGet(t *testing.T) {
 
 		response := authPb.Response{}
 
-		got := service.Get(createContext(), &user, &response)
+		err := service.Get(createContext(), &user, &response)
 
-		if got != nil {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, nil, t)
 	})
 
 	t.Run("returns an error", func(t *testing.T) {
@@ -84,11 +84,9 @@ func TestGet(t *testing.T) {
 
 		response := authPb.Response{}
 
-		got := service.Get(createContext(), &user, &response)
+		err := service.Get(createContext(), &user, &response)
 
-		if got != errFake {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, errFake, t)
 	})
 
 }
@@ -102,11 +100,9 @@ func TestGetAll(t *testing.T) {
 
 		response := authPb.Response{}
 
-		got := service.GetAll(createContext(), &request, &response)
+		err := service.GetAll(createContext(), &request, &response)
 
-		if got != nil {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, nil, t)
 	})
 
 	t.Run("returns an error", func(t *testing.T) {
@@ -116,11 +112,9 @@ func TestGetAll(t *testing.T) {
 
 		response := authPb.Response{}
 
-		got := service.GetAll(createContext(), &request, &response)
+		err := service.GetAll(createContext(), &request, &response)
 
-		if got != errFake {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, errFake, t)
 	})
 
 }
@@ -138,11 +132,9 @@ func TestUpdate(t *testing.T) {
 		}
 		response := authPb.Response{}
 
-		got := service.Update(createContext(), &user, &response)
+		err := service.Update(createContext(), &user, &response)
 
-		if got != nil {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, nil, t)
 	})
 
 	t.Run("returns an error", func(t *testing.T) {
@@ -156,11 +148,9 @@ func TestUpdate(t *testing.T) {
 		}
 		response := authPb.Response{}
 
-		got := service.Update(createContext(), &user, &response)
+		err := service.Update(createContext(), &user, &response)
 
-		if got != errFake {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, errFake, t)
 	})
 
 }
@@ -177,11 +167,9 @@ func TestValidateToken(t *testing.T) {
 		request := authPb.Token{Token: token}
 		response := authPb.Token{}
 
-		got := service.ValidateToken(createContext(), &request, &response)
+		err := service.ValidateToken(createContext(), &request, &response)
 
-		if got != nil {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, nil, t)
 	})
 
 	t.Run("token has expired", func(t *testing.T) {
@@ -194,10 +182,10 @@ func TestValidateToken(t *testing.T) {
 		request := authPb.Token{Token: token}
 		response := authPb.Token{}
 
-		got := service.ValidateToken(createContext(), &request, &response)
+		err := service.ValidateToken(createContext(), &request, &response)
 
-		if !strings.Contains(got.Error(), "token is expired by") {
-			t.Errorf("wanted 'token is expired by......' but got %v", got)
+		if !strings.Contains(err.Error(), "token is expired by") {
+			t.Errorf("wanted 'token is expired by......' but got %v", err)
 		}
 	})
 
@@ -217,11 +205,9 @@ func TestValidateToken(t *testing.T) {
 		request := authPb.Token{Token: token}
 		response := authPb.Token{}
 
-		got := service.ValidateToken(createContext(), &request, &response)
+		err := service.ValidateToken(createContext(), &request, &response)
 
-		if got != errTokenPasswordNotValid {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, errTokenPasswordNotValid, t)
 	})
 
 	t.Run("user not known", func(t *testing.T) {
@@ -234,11 +220,9 @@ func TestValidateToken(t *testing.T) {
 		request := authPb.Token{Token: token}
 		response := authPb.Token{}
 
-		got := service.ValidateToken(createContext(), &request, &response)
+		err := service.ValidateToken(createContext(), &request, &response)
 
-		if got != errUnknownUser {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, errUnknownUser, t)
 	})
 
 }
@@ -254,11 +238,9 @@ func TestAuth(t *testing.T) {
 			Password: "test",
 		}
 
-		got := service.Auth(createContext(), &user, &response)
+		err := service.Auth(createContext(), &user, &response)
 
-		if got != nil {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, nil, t)
 	})
 
 	t.Run("user not found", func(t *testing.T) {
@@ -266,11 +248,9 @@ func TestAuth(t *testing.T) {
 
 		response := authPb.Token{}
 
-		got := service.Auth(createContext(), &fakeUser, &response)
+		err := service.Auth(createContext(), &fakeUser, &response)
 
-		if got != errFake {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, errFake, t)
 	})
 
 	t.Run("password doesn't match", func(t *testing.T) {
@@ -282,10 +262,10 @@ func TestAuth(t *testing.T) {
 			Password: "wrong",
 		}
 
-		got := service.Auth(createContext(), &user, &response)
+		err := service.Auth(createContext(), &user, &response)
 
-		if !strings.Contains(got.Error(), "hashedPassword is not the hash of the given password") {
-			t.Errorf("wanted 'hashedPassword is not the hash of the given password......' but got %v", got)
+		if !strings.Contains(err.Error(), "hashedPassword is not the hash of the given password") {
+			t.Errorf("wanted 'hashedPassword is not the hash of the given password......' but got %v", err)
 		}
 	})
 }
@@ -302,11 +282,9 @@ func TestPasswordChange(t *testing.T) {
 			NewPassword: "new",
 		}
 
-		got := service.ChangePassword(createContext(), &request, &response)
+		err := service.ChangePassword(createContext(), &request, &response)
 
-		if got != nil {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, nil, t)
 	})
 
 	t.Run("user not found", func(t *testing.T) {
@@ -320,11 +298,9 @@ func TestPasswordChange(t *testing.T) {
 			NewPassword: "new",
 		}
 
-		got := service.ChangePassword(createContext(), &request, &response)
+		err := service.ChangePassword(createContext(), &request, &response)
 
-		if got != errFake {
-			t.Errorf("wanted %v but got %v", nil, got)
-		}
+		assertError(err, errFake, t)
 	})
 
 	t.Run("old password incorrect", func(t *testing.T) {
@@ -338,10 +314,10 @@ func TestPasswordChange(t *testing.T) {
 			NewPassword: "new",
 		}
 
-		got := service.ChangePassword(createContext(), &request, &response)
+		err := service.ChangePassword(createContext(), &request, &response)
 
-		if !strings.Contains(got.Error(), "hashedPassword is not the hash of the given password") {
-			t.Errorf("wanted 'hashedPassword is not the hash of the given password......' but got %v", got)
+		if !strings.Contains(err.Error(), "hashedPassword is not the hash of the given password") {
+			t.Errorf("wanted 'hashedPassword is not the hash of the given password......' but got %v", err)
 		}
 	})
 
