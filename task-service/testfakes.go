@@ -42,6 +42,16 @@ func (f *fakeRepo) Get(userID string) ([]*taskPb.Task, error) {
 	return tasks, nil
 }
 
+func (f *fakeRepo) Create(task *taskPb.Task) error {
+	if f.returnError {
+		return errFake
+	}
+
+	task.Id = "123"
+
+	return nil
+}
+
 var fakeTask1 = taskPb.Task{
 	Id:          "123",
 	Title:       "Test1",

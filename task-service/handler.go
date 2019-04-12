@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"time"
 
 	"golang.org/x/net/context"
 
@@ -35,7 +36,34 @@ func (t *taskHandler) Get(ctx context.Context, req *taskPb.Request, res *taskPb.
 	return nil
 }
 
-// so that we can get the user id to get tasks for, we get the supplied token, validate it,
+func (t *taskHandler) Create(ctx context.Context, req *taskPb.CreateTask, res *taskPb.Response) error {
+
+	userID, err := t.getUserIDFromTokenInContext(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	task := taskPb.Task{
+		Title:       req.Title,
+		Description: req.Description,
+		DailyDo:     req.DailyDo,
+		UserId:      userID,
+		CreatedDate: int64(time.Now().Unix()),
+	}
+
+	err = t.repo.Create(&task)
+
+	if err != nil {
+		return err
+	}
+
+	res.Task = &task
+
+	return nil
+}
+
+// so that we can get the user id to use on the functions, we get the supplied token, validate it,
 // and then get the user id. This means not having to send the user id in the request, which
 // limits the chance of random api calls being made with guessed user id
 func (t *taskHandler) getUserIDFromTokenInContext(ctx context.Context) (string, error) {
