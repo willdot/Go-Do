@@ -52,6 +52,34 @@ func (f *fakeRepo) Create(task *taskPb.Task) error {
 	return nil
 }
 
+func (f *fakeRepo) Update(task *taskPb.Task) error {
+	if f.returnError {
+		return errFake
+	}
+
+	var taskToUpdate *taskPb.Task
+
+	for _, v := range f.tasks {
+		if v.Id == task.Id {
+			taskToUpdate = v
+			break
+		}
+	}
+
+	if taskToUpdate == nil {
+		return errTaskNotFound
+	}
+
+	if taskToUpdate.UserId != task.UserId {
+		return errTaskUserIDNotMatched
+	}
+
+	taskToUpdate.Title = task.Title
+	taskToUpdate.Description = task.Description
+
+	return nil
+}
+
 var fakeTask1 = taskPb.Task{
 	Id:          "123",
 	Title:       "Test1",
@@ -79,7 +107,7 @@ var fakeTask3 = taskPb.Task{
 	DailyDo:     false,
 }
 
-func createService(repoReturnError, userHandlerReturnError bool) taskHandler {
+func createService(repoReturnError, userHandlerReturnError, userIDInTokenMatchesTask bool) taskHandler {
 
 	var tasks []*taskPb.Task
 
@@ -87,7 +115,7 @@ func createService(repoReturnError, userHandlerReturnError bool) taskHandler {
 
 	fakeRepo := &fakeRepo{repoReturnError, tasks}
 
-	fakeAuthClient := &fakeUserHandler{userHandlerReturnError}
+	fakeAuthClient := &fakeUserHandler{userHandlerReturnError, userIDInTokenMatchesTask}
 
 	service := taskHandler{fakeRepo, fakeAuthClient}
 
@@ -112,7 +140,8 @@ func createContext(token string, addMetaData bool) context.Context {
 }
 
 type fakeUserHandler struct {
-	returnError bool
+	returnError   bool
+	userIDMatches bool
 }
 
 func (u *fakeUserHandler) Create(ctx context.Context, req *authPb.User, opts ...client.CallOption) (*authPb.Response, error) {
@@ -142,8 +171,15 @@ func (u *fakeUserHandler) ValidateToken(ctx context.Context, req *authPb.Token, 
 	if u.returnError {
 		return nil, errFake
 	}
+
+	userID := userID1
+
+	if !u.userIDMatches {
+		userID = userID2
+	}
+
 	token := &authPb.Token{
-		UserId: userID1,
+		UserId: userID,
 	}
 
 	return token, nil

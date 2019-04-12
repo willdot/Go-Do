@@ -63,6 +63,30 @@ func (t *taskHandler) Create(ctx context.Context, req *taskPb.CreateTask, res *t
 	return nil
 }
 
+func (t *taskHandler) Update(ctx context.Context, req *taskPb.UpdateTask, res *taskPb.Response) error {
+
+	userID, err := t.getUserIDFromTokenInContext(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	task := taskPb.Task{
+		Id:          req.TaskId,
+		Title:       req.Title,
+		Description: req.Description,
+		UserId:      userID,
+	}
+
+	err = t.repo.Update(&task)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // so that we can get the user id to use on the functions, we get the supplied token, validate it,
 // and then get the user id. This means not having to send the user id in the request, which
 // limits the chance of random api calls being made with guessed user id

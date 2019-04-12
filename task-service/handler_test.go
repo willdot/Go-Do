@@ -17,7 +17,7 @@ func assertError(got, want error, t *testing.T) {
 func TestGetTasks(t *testing.T) {
 
 	t.Run("get but returns an error in repo", func(t *testing.T) {
-		service := createService(true, false)
+		service := createService(true, false, true)
 
 		request := taskPb.Request{}
 		response := taskPb.Response{}
@@ -28,7 +28,7 @@ func TestGetTasks(t *testing.T) {
 	})
 
 	t.Run("get but returns an error for no token in metadata", func(t *testing.T) {
-		service := createService(false, true)
+		service := createService(false, true, true)
 
 		request := taskPb.Request{}
 		response := taskPb.Response{}
@@ -39,7 +39,7 @@ func TestGetTasks(t *testing.T) {
 	})
 
 	t.Run("get but returns an error for metadata provided", func(t *testing.T) {
-		service := createService(false, true)
+		service := createService(false, true, true)
 
 		request := taskPb.Request{}
 		response := taskPb.Response{}
@@ -51,7 +51,7 @@ func TestGetTasks(t *testing.T) {
 
 	t.Run("get all for user 1", func(t *testing.T) {
 
-		service := createService(false, false)
+		service := createService(false, false, true)
 
 		var want []*taskPb.Task
 
@@ -74,7 +74,7 @@ func TestGetTasks(t *testing.T) {
 func TestCreateTasks(t *testing.T) {
 
 	t.Run("create but returns an error in repo", func(t *testing.T) {
-		service := createService(true, false)
+		service := createService(true, false, true)
 
 		request := taskPb.CreateTask{}
 		response := taskPb.Response{}
@@ -84,8 +84,8 @@ func TestCreateTasks(t *testing.T) {
 		assertError(err, errFake, t)
 	})
 
-	t.Run("get but returns an error for no token in metadata", func(t *testing.T) {
-		service := createService(false, true)
+	t.Run("create but returns an error for no token in metadata", func(t *testing.T) {
+		service := createService(false, true, true)
 
 		request := taskPb.CreateTask{}
 		response := taskPb.Response{}
@@ -95,8 +95,8 @@ func TestCreateTasks(t *testing.T) {
 		assertError(err, errFake, t)
 	})
 
-	t.Run("get but returns an error for metadata provided", func(t *testing.T) {
-		service := createService(false, true)
+	t.Run("create but returns an error for metadata provided", func(t *testing.T) {
+		service := createService(false, true, true)
 
 		request := taskPb.CreateTask{}
 		response := taskPb.Response{}
@@ -108,7 +108,7 @@ func TestCreateTasks(t *testing.T) {
 
 	t.Run("create task for user 1", func(t *testing.T) {
 
-		service := createService(false, false)
+		service := createService(false, false, true)
 
 		want := "123"
 
@@ -135,5 +135,94 @@ func TestCreateTasks(t *testing.T) {
 			t.Errorf("want %v got %v", currentDate, createdDate)
 		}
 
+	})
+}
+
+func TestUpdateTask(t *testing.T) {
+
+	t.Run("update but repo returns error", func(t *testing.T) {
+
+		service := createService(true, false, true)
+
+		request := taskPb.UpdateTask{}
+		response := taskPb.Response{}
+
+		err := service.Update(createContext("t", true), &request, &response)
+
+		assertError(err, errFake, t)
+
+	})
+
+	t.Run("update but returns an error for no token in metadata", func(t *testing.T) {
+		service := createService(false, true, true)
+
+		request := taskPb.UpdateTask{}
+		response := taskPb.Response{}
+
+		err := service.Update(createContext("", true), &request, &response)
+
+		assertError(err, errFake, t)
+	})
+
+	t.Run("update but returns an error for metadata provided", func(t *testing.T) {
+		service := createService(false, true, true)
+
+		request := taskPb.UpdateTask{}
+		response := taskPb.Response{}
+
+		err := service.Update(createContext("", false), &request, &response)
+
+		assertError(err, errNoMetaData, t)
+	})
+
+	t.Run("task not found", func(t *testing.T) {
+		service := createService(false, false, true)
+
+		request := taskPb.UpdateTask{
+			TaskId: "not found",
+		}
+		response := taskPb.Response{}
+
+		err := service.Update(createContext("t", true), &request, &response)
+
+		assertError(err, errTaskNotFound, t)
+	})
+
+	t.Run("tasks user id doesn't match id in token", func(t *testing.T) {
+		service := createService(false, false, false)
+
+		request := taskPb.UpdateTask{
+			TaskId: "123",
+		}
+		response := taskPb.Response{}
+
+		err := service.Update(createContext("t", true), &request, &response)
+
+		assertError(err, errTaskUserIDNotMatched, t)
+	})
+
+	t.Run("update fakeTask1 for user 1", func(t *testing.T) {
+
+		service := createService(false, false, true)
+
+		request := taskPb.UpdateTask{
+			TaskId:      "123",
+			Title:       "new",
+			Description: "new",
+		}
+
+		response := taskPb.Response{}
+
+		err := service.Update(createContext("t", true), &request, &response)
+
+		assertError(err, nil, t)
+
+		if fakeTask1.Title != request.Title {
+			t.Errorf("Title hasn't updated: wanted %v got %v", request.Title, fakeTask1.Title)
+		}
+
+		if fakeTask1.Description != request.Description {
+			t.Errorf("Description hasn't updated: wanted %v got %v", request.Description, fakeTask1.Description)
+		}
 	})
 }
