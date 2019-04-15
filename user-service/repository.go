@@ -2,10 +2,13 @@ package main
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gocql/gocql"
 	authPb "github.com/willdot/go-do/user-service/proto/auth"
 )
+
+var errUserAlreadyExists = "User with email '%s' already exists"
 
 // Repository ..
 type Repository interface {
@@ -102,6 +105,20 @@ func (repo *UserRepository) GetByEmail(email string) (*authPb.User, error) {
 
 // Create will create a new user
 func (repo *UserRepository) Create(user *authPb.User) error {
+
+	var found = false
+	m := map[string]interface{}{}
+
+	query := repo.Session.Query("SELECT * FROM user WHERE email=? LIMIT 1", user.Email)
+	iterable := query.Consistency(gocql.One).Iter()
+
+	for iterable.MapScan(m) {
+		found = true
+	}
+
+	if !found {
+		return fmt.Errorf(errUserAlreadyExists, user.Email)
+	}
 
 	gocqlUUID := gocql.TimeUUID()
 

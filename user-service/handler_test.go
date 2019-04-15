@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 	"testing"
 
@@ -10,7 +11,16 @@ import (
 )
 
 func assertError(got, want error, t *testing.T) {
-	if got != want {
+
+	if got == nil || want == nil {
+
+		if got != want {
+			t.Errorf("got error '%v' but want error '%v'", got, want)
+		}
+		return
+	}
+
+	if got.Error() != want.Error() {
 		t.Errorf("got error '%v' but want error '%v'", got, want)
 	}
 }
@@ -35,6 +45,20 @@ func TestCreate(t *testing.T) {
 		err := service.Create(createContext(), &fakeUserToCreate, &response)
 
 		assertError(err, errFake, t)
+	})
+
+	t.Run("returns user already exists error", func(t *testing.T) {
+		service := createService(false)
+
+		response := authPb.Response{}
+
+		existingUser := authPb.User{
+			Email: "fake@fake.com",
+		}
+
+		err := service.Create(createContext(), &existingUser, &response)
+
+		assertError(err, fmt.Errorf(errUserAlreadyExists, fakeUser.Email), t)
 	})
 
 }

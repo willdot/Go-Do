@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -37,6 +38,12 @@ func (f *fakeRepo) Create(user *authPb.User) error {
 
 	if f.returnError {
 		return errFake
+	}
+
+	for _, v := range f.users {
+		if v.Email == user.Email {
+			return fmt.Errorf(errUserAlreadyExists, user.Email)
+		}
 	}
 	return nil
 }
@@ -76,7 +83,7 @@ var fakeUser = authPb.User{
 
 var fakeUserToCreate = authPb.User{
 	Name:     "Fake",
-	Email:    "fake@fake.com",
+	Email:    "newfake@fake.com",
 	Password: "fake",
 	Company:  "fake",
 }
