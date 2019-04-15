@@ -107,6 +107,7 @@ var fakeTask3 = taskPb.Task{
 	DailyDo:     false,
 }
 
+// createService creates a fake service with mocks.
 func createService(repoReturnError, userHandlerReturnError, userIDInTokenMatchesTask bool) taskHandler {
 
 	var tasks []*taskPb.Task
@@ -122,10 +123,11 @@ func createService(repoReturnError, userHandlerReturnError, userIDInTokenMatches
 	return service
 }
 
+// createContext creates a fake context and adds in a token if required
 func createContext(token string, addMetaData bool) context.Context {
 	req, _ := http.NewRequest(http.MethodPost, "/", nil)
 
-	ctx, _ := context.WithDeadline(req.Context(), time.Now())
+	ctx, cancel := context.WithDeadline(req.Context(), time.Now())
 
 	if addMetaData {
 		tokenMap := make(map[string]string)
@@ -136,11 +138,18 @@ func createContext(token string, addMetaData bool) context.Context {
 		ctx = metadata.NewContext(ctx, tokenMap)
 	}
 
+	// error given when cancel func returned from above call is discarded, so just defering it to remove the error. Has no impact on a test
+	defer cancel()
+
 	return ctx
 }
 
+// This is used so that the validate token method can used to get the user id from a JWT
 type fakeUserHandler struct {
-	returnError   bool
+	// ReturnError is a flag to simulate an error in the method
+	returnError bool
+	// UseIdMatches is a flag to set the user id found inside the JWT. Then in the repo when a comparison between the user id
+	// of the task that has been sent in the request doesn't match the user id in the JWT, an error can be returned
 	userIDMatches bool
 }
 

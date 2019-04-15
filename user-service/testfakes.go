@@ -10,6 +10,7 @@ import (
 )
 
 type fakeRepo struct {
+	// returnError is used as a flag to return a fake error
 	returnError bool
 	users       []*authPb.User
 }
@@ -80,6 +81,7 @@ var fakeUserToCreate = authPb.User{
 	Company:  "fake",
 }
 
+// createService creates a fake service with mocks.
 func createService(returnError bool) userHandler {
 
 	var users []*authPb.User
@@ -101,6 +103,7 @@ func createService(returnError bool) userHandler {
 	return service
 }
 
+// createContext creates a fake context
 func createContext() context.Context {
 	req, _ := http.NewRequest(http.MethodPost, "/", nil)
 
