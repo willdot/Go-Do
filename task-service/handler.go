@@ -12,12 +12,14 @@ import (
 )
 
 var errNoMetaData = errors.New("no auth meta data found in request")
+var errDailyDoAlreadyExists = errors.New("There is already a task set as daily do")
 
 type taskHandler struct {
 	repo       Repository
 	userClient authPb.AuthClient
 }
 
+// Get satisfies the Get RPC for the Task proto and gets tasks for a user
 func (t *taskHandler) Get(ctx context.Context, req *taskPb.Request, res *taskPb.Response) error {
 
 	userID, err := t.getUserIDFromTokenInContext(ctx)
@@ -36,6 +38,7 @@ func (t *taskHandler) Get(ctx context.Context, req *taskPb.Request, res *taskPb.
 	return nil
 }
 
+// Create satisfies the Create RPC for the Task proto and creates a new task for a user
 func (t *taskHandler) Create(ctx context.Context, req *taskPb.CreateTask, res *taskPb.Response) error {
 
 	userID, err := t.getUserIDFromTokenInContext(ctx)
@@ -63,6 +66,7 @@ func (t *taskHandler) Create(ctx context.Context, req *taskPb.CreateTask, res *t
 	return nil
 }
 
+// Update satisfies the Update RPC for the Task proto and updates a task for a user
 func (t *taskHandler) Update(ctx context.Context, req *taskPb.UpdateTask, res *taskPb.Response) error {
 
 	userID, err := t.getUserIDFromTokenInContext(ctx)
@@ -79,6 +83,43 @@ func (t *taskHandler) Update(ctx context.Context, req *taskPb.UpdateTask, res *t
 	}
 
 	err = t.repo.Update(&task)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ChangeDailyDoStatus satisfies the ChangeDailyDoStatus RPC for the Task proto and sets the daily do status of a task
+func (t *taskHandler) ChangeDailyDoStatus(ctx context.Context, req *taskPb.DailyDoStatusRequest, res *taskPb.Response) error {
+
+	userID, err := t.getUserIDFromTokenInContext(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	// If setting a daily do, check there isn't already a daily do set
+	if req.Status {
+		existingDailyDo, err := t.repo.GetDailyDoForUser(userID)
+
+		if err != nil {
+			return err
+		}
+
+		if existingDailyDo != nil {
+			return errDailyDoAlreadyExists
+		}
+	}
+
+	task := taskPb.Task{
+		Id:      req.TaskId,
+		UserId:  userID,
+		DailyDo: req.Status,
+	}
+
+	err = t.repo.SetDailyDoStatus(&task)
 
 	if err != nil {
 		return err

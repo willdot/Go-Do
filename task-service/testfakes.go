@@ -80,17 +80,58 @@ func (f *fakeRepo) Update(task *taskPb.Task) error {
 	return nil
 }
 
+func (f *fakeRepo) SetDailyDoStatus(task *taskPb.Task) error {
+	if f.returnError {
+		return errFake
+	}
+
+	var taskToUpdate *taskPb.Task
+
+	for _, v := range f.tasks {
+
+		if v.Id == task.Id {
+			taskToUpdate = v
+			break
+		}
+	}
+
+	if taskToUpdate == nil {
+		return errTaskNotFound
+	}
+
+	if taskToUpdate.UserId != task.UserId {
+		return errTaskUserIDNotMatched
+	}
+
+	taskToUpdate.DailyDo = task.DailyDo
+
+	return nil
+}
+
+func (f *fakeRepo) GetDailyDoForUser(userID string) (*taskPb.Task, error) {
+
+	var dailyDo *taskPb.Task
+	for _, v := range f.tasks {
+		if v.DailyDo {
+			dailyDo = v
+			break
+		}
+	}
+
+	return dailyDo, nil
+}
+
 var fakeTask1 = taskPb.Task{
 	Id:          "123",
 	Title:       "Test1",
 	Description: "Do something",
 	UserId:      userID1,
 	CreatedDate: 1,
-	DailyDo:     false,
+	DailyDo:     true,
 }
 
 var fakeTask2 = taskPb.Task{
-	Id:          "123",
+	Id:          "456",
 	Title:       "Test2",
 	Description: "Do something",
 	UserId:      userID1,
@@ -99,7 +140,7 @@ var fakeTask2 = taskPb.Task{
 }
 
 var fakeTask3 = taskPb.Task{
-	Id:          "123",
+	Id:          "789",
 	Title:       "Test3",
 	Description: "Do something",
 	UserId:      userID2,

@@ -226,3 +226,123 @@ func TestUpdateTask(t *testing.T) {
 		}
 	})
 }
+
+func TestChangeDailyDoStatus(t *testing.T) {
+
+	t.Run("update but repo returns error", func(t *testing.T) {
+
+		service := createService(true, false, true)
+
+		request := taskPb.DailyDoStatusRequest{}
+		response := taskPb.Response{}
+
+		err := service.ChangeDailyDoStatus(createContext("t", true), &request, &response)
+
+		assertError(err, errFake, t)
+
+	})
+
+	t.Run("update but returns an error for no token in metadata", func(t *testing.T) {
+		service := createService(false, true, true)
+
+		request := taskPb.DailyDoStatusRequest{}
+		response := taskPb.Response{}
+
+		err := service.ChangeDailyDoStatus(createContext("", true), &request, &response)
+
+		assertError(err, errFake, t)
+	})
+
+	t.Run("update but returns an error for metadata provided", func(t *testing.T) {
+		service := createService(false, true, true)
+
+		request := taskPb.DailyDoStatusRequest{}
+		response := taskPb.Response{}
+
+		err := service.ChangeDailyDoStatus(createContext("", false), &request, &response)
+
+		assertError(err, errNoMetaData, t)
+	})
+
+	t.Run("task not found", func(t *testing.T) {
+		service := createService(false, false, true)
+
+		request := taskPb.DailyDoStatusRequest{
+			TaskId: "not found",
+		}
+		response := taskPb.Response{}
+
+		err := service.ChangeDailyDoStatus(createContext("t", true), &request, &response)
+
+		assertError(err, errTaskNotFound, t)
+	})
+
+	t.Run("tasks user id doesn't match id in token", func(t *testing.T) {
+		service := createService(false, false, false)
+
+		request := taskPb.DailyDoStatusRequest{
+			TaskId: "123",
+		}
+		response := taskPb.Response{}
+
+		err := service.ChangeDailyDoStatus(createContext("t", true), &request, &response)
+
+		assertError(err, errTaskUserIDNotMatched, t)
+	})
+
+	t.Run("try to set a task as daily do but a different task is already a daily do", func(t *testing.T) {
+		service := createService(false, false, false)
+
+		request := taskPb.DailyDoStatusRequest{
+			TaskId: "456",
+			Status: true,
+		}
+		response := taskPb.Response{}
+
+		err := service.ChangeDailyDoStatus(createContext("t", true), &request, &response)
+
+		assertError(err, errDailyDoAlreadyExists, t)
+	})
+
+	t.Run("set fakeTask1 for user 1 not as daily do", func(t *testing.T) {
+
+		service := createService(false, false, true)
+
+		request := taskPb.DailyDoStatusRequest{
+			TaskId: "123",
+			Status: false,
+		}
+
+		response := taskPb.Response{}
+
+		err := service.ChangeDailyDoStatus(createContext("t", true), &request, &response)
+
+		assertError(err, nil, t)
+
+		if fakeTask1.DailyDo != request.Status {
+			t.Errorf("Daily Do hasn't updated: wanted %v got %v", request.Status, fakeTask1.DailyDo)
+		}
+
+	})
+
+	t.Run("set fakeTask1 for user 1 as daily do", func(t *testing.T) {
+
+		service := createService(false, false, true)
+
+		request := taskPb.DailyDoStatusRequest{
+			TaskId: "123",
+			Status: true,
+		}
+
+		response := taskPb.Response{}
+
+		err := service.ChangeDailyDoStatus(createContext("t", true), &request, &response)
+
+		assertError(err, nil, t)
+
+		if fakeTask1.DailyDo != request.Status {
+			t.Errorf("Daily Do hasn't updated: wanted %v got %v", request.Status, fakeTask1.DailyDo)
+		}
+	})
+
+}
