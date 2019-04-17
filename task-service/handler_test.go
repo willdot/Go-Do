@@ -55,7 +55,7 @@ func TestGetTasks(t *testing.T) {
 
 		var want []*taskPb.Task
 
-		want = append(want, &fakeTask1, &fakeTask2)
+		want = append(want, &fakeTask1, &fakeTask2, &fakeTask4)
 
 		request := taskPb.Request{}
 		response := taskPb.Response{}
