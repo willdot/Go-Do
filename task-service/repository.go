@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"strconv"
 
 	"github.com/gocql/gocql"
 	taskPb "github.com/willdot/go-do/task-service/proto/task"
@@ -17,6 +18,7 @@ type Repository interface {
 	Update(*taskPb.Task) error
 	SetDailyDoStatus(*taskPb.Task) error
 	GetDailyDoForUser(string) (*taskPb.Task, error)
+	CompleteTask(*taskPb.Task) error
 }
 
 // TaskRepository is a datastore
@@ -155,4 +157,53 @@ func (repo *TaskRepository) GetDailyDoForUser(string) (*taskPb.Task, error) {
 	}
 
 	return dailyDo, nil
+}
+
+// CompleteTask sets the completed date time of the task. Sets to 0 if it's being un completed
+func (repo *TaskRepository) CompleteTask(task *taskPb.Task) error {
+
+	var found = false
+
+	var existingTask taskPb.Task
+	m := map[string]interface{}{}
+
+	query := repo.Session.Query("SELECT * FROM task WHERE taskId=? LIMIT 1", task.Id)
+	iterable := query.Consistency(gocql.One).Iter()
+
+	for iterable.MapScan(m) {
+		found = true
+		existingTask = taskPb.Task{
+			UserId:  m["userId"].(string),
+			DailyDo: m["dailyDo"].(bool),
+		}
+	}
+
+	if !found {
+		return errTaskNotFound
+	}
+
+	if existingTask.UserId != task.UserId {
+		return errTaskUserIDNotMatched
+	}
+
+	parameters := []string{strconv.FormatInt(task.CompletedDate, 10)}
+	queryString := "UPDATE task SET completedDate =?"
+
+	if existingTask.DailyDo != task.DailyDo {
+		queryString += ", dailyDo =?"
+		parameters = append(parameters, strconv.FormatBool(task.DailyDo))
+	}
+
+	parameters = append(parameters, task.Id)
+
+	queryString += " where id = ?"
+
+	err := repo.Session.Query(queryString, parameters).Exec()
+
+	if err != nil {
+		return err
+	}
+
+	return err
+
 }

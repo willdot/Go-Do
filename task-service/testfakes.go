@@ -80,6 +80,34 @@ func (f *fakeRepo) Update(task *taskPb.Task) error {
 	return nil
 }
 
+func (f *fakeRepo) CompleteTask(task *taskPb.Task) error {
+	if f.returnError {
+		return errFake
+	}
+
+	var taskToComplete *taskPb.Task
+
+	for _, v := range f.tasks {
+		if v.Id == task.Id {
+			taskToComplete = v
+			break
+		}
+	}
+
+	if taskToComplete == nil {
+		return errTaskNotFound
+	}
+
+	if taskToComplete.UserId != task.UserId {
+		return errTaskUserIDNotMatched
+	}
+
+	taskToComplete.CompletedDate = task.CompletedDate
+	taskToComplete.DailyDo = task.DailyDo
+
+	return nil
+}
+
 func (f *fakeRepo) SetDailyDoStatus(task *taskPb.Task) error {
 	if f.returnError {
 		return errFake
@@ -122,21 +150,23 @@ func (f *fakeRepo) GetDailyDoForUser(userID string) (*taskPb.Task, error) {
 }
 
 var fakeTask1 = taskPb.Task{
-	Id:          "123",
-	Title:       "Test1",
-	Description: "Do something",
-	UserId:      userID1,
-	CreatedDate: 1,
-	DailyDo:     true,
+	Id:            "123",
+	Title:         "Test1",
+	Description:   "Do something",
+	UserId:        userID1,
+	CreatedDate:   1,
+	DailyDo:       true,
+	CompletedDate: 0,
 }
 
 var fakeTask2 = taskPb.Task{
-	Id:          "456",
-	Title:       "Test2",
-	Description: "Do something",
-	UserId:      userID1,
-	CreatedDate: 1,
-	DailyDo:     false,
+	Id:            "456",
+	Title:         "Test2",
+	Description:   "Do something",
+	UserId:        userID1,
+	CreatedDate:   1,
+	DailyDo:       false,
+	CompletedDate: 1,
 }
 
 var fakeTask3 = taskPb.Task{
@@ -148,12 +178,22 @@ var fakeTask3 = taskPb.Task{
 	DailyDo:     false,
 }
 
+var fakeTask4 = taskPb.Task{
+	Id:            "111",
+	Title:         "Test4",
+	Description:   "Do something",
+	UserId:        userID1,
+	CreatedDate:   1,
+	DailyDo:       false,
+	CompletedDate: 0,
+}
+
 // createService creates a fake service with mocks.
 func createService(repoReturnError, userHandlerReturnError, userIDInTokenMatchesTask bool) taskHandler {
 
 	var tasks []*taskPb.Task
 
-	tasks = append(tasks, &fakeTask1, &fakeTask2, &fakeTask3)
+	tasks = append(tasks, &fakeTask1, &fakeTask2, &fakeTask3, &fakeTask4)
 
 	fakeRepo := &fakeRepo{repoReturnError, tasks}
 

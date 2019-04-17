@@ -128,6 +128,36 @@ func (t *taskHandler) ChangeDailyDoStatus(ctx context.Context, req *taskPb.Daily
 	return nil
 }
 
+// CompleteTask sets the task CompletedDate
+func (t *taskHandler) CompleteTask(ctx context.Context, req *taskPb.CompleteTaskRequest, res *taskPb.Response) error {
+
+	userID, err := t.getUserIDFromTokenInContext(ctx)
+
+	if err != nil {
+		return err
+	}
+
+	task := taskPb.Task{
+		Id:     req.TaskId,
+		UserId: userID,
+	}
+
+	if req.Completed {
+		task.CompletedDate = int64(time.Now().Unix())
+		task.DailyDo = false
+	} else {
+		task.CompletedDate = 0
+	}
+
+	err = t.repo.CompleteTask(&task)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // so that we can get the user id to use on the functions, we get the supplied token, validate it,
 // and then get the user id. This means not having to send the user id in the request, which
 // limits the chance of random api calls being made with guessed user id

@@ -344,5 +344,131 @@ func TestChangeDailyDoStatus(t *testing.T) {
 			t.Errorf("Daily Do hasn't updated: wanted %v got %v", request.Status, fakeTask1.DailyDo)
 		}
 	})
+}
 
+func TestCompleteTask(t *testing.T) {
+	t.Run("update but repo returns error", func(t *testing.T) {
+
+		service := createService(true, false, true)
+
+		request := taskPb.CompleteTaskRequest{}
+		response := taskPb.Response{}
+
+		err := service.CompleteTask(createContext("t", true), &request, &response)
+
+		assertError(err, errFake, t)
+
+	})
+
+	t.Run("update but returns an error for no token in metadata", func(t *testing.T) {
+		service := createService(false, true, true)
+
+		request := taskPb.CompleteTaskRequest{}
+		response := taskPb.Response{}
+
+		err := service.CompleteTask(createContext("", true), &request, &response)
+
+		assertError(err, errFake, t)
+	})
+
+	t.Run("update but returns an error for metadata provided", func(t *testing.T) {
+		service := createService(false, true, true)
+
+		request := taskPb.CompleteTaskRequest{}
+		response := taskPb.Response{}
+
+		err := service.CompleteTask(createContext("", false), &request, &response)
+
+		assertError(err, errNoMetaData, t)
+	})
+
+	t.Run("task not found", func(t *testing.T) {
+		service := createService(false, false, true)
+
+		request := taskPb.CompleteTaskRequest{
+			TaskId: "not found",
+		}
+		response := taskPb.Response{}
+
+		err := service.CompleteTask(createContext("t", true), &request, &response)
+
+		assertError(err, errTaskNotFound, t)
+	})
+
+	t.Run("tasks user id doesn't match id in token", func(t *testing.T) {
+		service := createService(false, false, false)
+
+		request := taskPb.CompleteTaskRequest{
+			TaskId: "123",
+		}
+		response := taskPb.Response{}
+
+		err := service.CompleteTask(createContext("t", true), &request, &response)
+
+		assertError(err, errTaskUserIDNotMatched, t)
+	})
+
+	t.Run("set fakeTask4 for user 1 as done", func(t *testing.T) {
+
+		service := createService(false, false, true)
+
+		request := taskPb.CompleteTaskRequest{
+			TaskId:    "111",
+			Completed: true,
+		}
+
+		response := taskPb.Response{}
+
+		err := service.CompleteTask(createContext("t", true), &request, &response)
+
+		assertError(err, nil, t)
+
+		if fakeTask4.CompletedDate == 0 {
+			t.Errorf("Daily Do hasn't updated: wanted %v got %v", 0, fakeTask1.CompletedDate)
+		}
+	})
+
+	t.Run("set fakeTask1 for user 1 as done and unsets daily do status", func(t *testing.T) {
+
+		service := createService(false, false, true)
+
+		request := taskPb.CompleteTaskRequest{
+			TaskId:    "123",
+			Completed: true,
+		}
+
+		response := taskPb.Response{}
+
+		err := service.CompleteTask(createContext("t", true), &request, &response)
+
+		assertError(err, nil, t)
+
+		if fakeTask1.CompletedDate == 0 {
+			t.Errorf("Completed Date hasn't updated: wanted %v got %v", 0, fakeTask1.CompletedDate)
+		}
+
+		if fakeTask1.DailyDo {
+			t.Errorf("Daily do hasn't been updated after being completed. Wanted %v but got %v", false, fakeTask1.DailyDo)
+		}
+	})
+
+	t.Run("set fakeTask2 for user 1 as not completed", func(t *testing.T) {
+
+		service := createService(false, false, true)
+
+		request := taskPb.CompleteTaskRequest{
+			TaskId:    "456",
+			Completed: false,
+		}
+
+		response := taskPb.Response{}
+
+		err := service.CompleteTask(createContext("t", true), &request, &response)
+
+		assertError(err, nil, t)
+
+		if fakeTask2.CompletedDate != 0 {
+			t.Errorf("Completed Date hasn't updated: wanted %v got %v", 0, fakeTask2.CompletedDate)
+		}
+	})
 }
