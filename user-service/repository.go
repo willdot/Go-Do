@@ -116,7 +116,7 @@ func (repo *UserRepository) Create(user *authPb.User) error {
 		found = true
 	}
 
-	if !found {
+	if found {
 		return fmt.Errorf(errUserAlreadyExists, user.Email)
 	}
 
