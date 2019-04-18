@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"strconv"
+	"time"
 
 	"github.com/gocql/gocql"
 	taskPb "github.com/willdot/go-do/task-service/proto/task"
@@ -36,14 +37,15 @@ func (repo *TaskRepository) Get(userID string) ([]*taskPb.Task, error) {
 	iterable := query.Iter()
 
 	for iterable.MapScan(m) {
+
 		tasks = append(tasks, &taskPb.Task{
 			Id:            m["id"].(gocql.UUID).String(),
 			Title:         m["title"].(string),
 			Description:   m["description"].(string),
-			UserId:        m["userId"].(string),
-			CreatedDate:   m["createdDate"].(int64),
-			CompletedDate: m["completedDate"].(int64),
-			DailyDo:       m["dailyDo"].(bool),
+			UserId:        m["userid"].(string),
+			DailyDo:       m["dailydo"].(bool),
+			CompletedDate: m["completeddate"].(time.Time).Unix(),
+			CreatedDate:   m["createddate"].(time.Time).Unix(),
 		})
 
 		m = map[string]interface{}{}
