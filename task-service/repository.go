@@ -32,7 +32,7 @@ func (repo *TaskRepository) Get(userID string) ([]*taskPb.Task, error) {
 
 	m := map[string]interface{}{}
 
-	query := repo.Session.Query("SELECT * FROM task WHERE userId =?")
+	query := repo.Session.Query("SELECT * FROM task WHERE userId =?", userID)
 	iterable := query.Iter()
 
 	for iterable.MapScan(m) {
