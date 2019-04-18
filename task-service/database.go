@@ -52,8 +52,8 @@ func init() {
 
 	if _, exists := keySpaceMeta.Tables["task"]; exists != true {
 		Session.Query("CREATE TABLE task (id UUID, title text, description text, userId text, createdDate timestamp, completedDate timestamp, dailyDo Boolean, PRIMARY KEY(id))").Exec()
-		Session.Query("create index UserIdIndex on user(userId)").Exec()
-		Session.Query("create index DailyDoIndex on user(dailyDo)").Exec()
-		Session.Query("create index CompletedIndex on user(completedDate)").Exec()
+		Session.Query("create index UserIdIndex on task(userId)").Exec()
+		Session.Query("create index DailyDoIndex on task(dailyDo)").Exec()
+		Session.Query("create index CompletedIndex on task(completedDate)").Exec()
 	}
 }
