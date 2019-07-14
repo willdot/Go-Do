@@ -149,13 +149,18 @@ func (f *fakeRepo) GetDailyDoForUser(userID string) (*taskPb.Task, error) {
 	return dailyDo, nil
 }
 
+func setTaskAsDailyDo() {
+
+	fakeTask1.DailyDo = true
+}
+
 var fakeTask1 = taskPb.Task{
 	Id:            "123",
 	Title:         "Test1",
 	Description:   "Do something",
 	UserId:        userID1,
 	CreatedDate:   1,
-	DailyDo:       true,
+	DailyDo:       false,
 	CompletedDate: 0,
 }
 

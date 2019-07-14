@@ -136,6 +136,27 @@ func TestCreateTasks(t *testing.T) {
 		}
 
 	})
+
+	t.Run("create daily do task for user 1 with daily do already existing", func(t *testing.T) {
+
+		service := createService(false, false, true)
+
+		fakeTask1.DailyDo = true
+
+		request := taskPb.CreateTask{
+			Title:       "fake",
+			Description: "fake",
+			DailyDo:     true,
+		}
+
+		response := taskPb.Response{}
+
+		err := service.Create(createContext("t", true), &request, &response)
+
+		fakeTask1.DailyDo = false
+
+		assertError(err, errDailyDoAlreadyExists, t)
+	})
 }
 
 func TestUpdateTask(t *testing.T) {
@@ -293,6 +314,8 @@ func TestChangeDailyDoStatus(t *testing.T) {
 	t.Run("try to set a task as daily do but a different task is already a daily do", func(t *testing.T) {
 		service := createService(false, false, false)
 
+		fakeTask1.DailyDo = true
+
 		request := taskPb.DailyDoStatusRequest{
 			TaskId: "456",
 			Status: true,
@@ -301,7 +324,29 @@ func TestChangeDailyDoStatus(t *testing.T) {
 
 		err := service.ChangeDailyDoStatus(createContext("t", true), &request, &response)
 
+		fakeTask1.DailyDo = false
+
 		assertError(err, errDailyDoAlreadyExists, t)
+	})
+
+	t.Run("set fakeTask1 for user 1 as daily do", func(t *testing.T) {
+
+		service := createService(false, false, true)
+
+		request := taskPb.DailyDoStatusRequest{
+			TaskId: "123",
+			Status: true,
+		}
+
+		response := taskPb.Response{}
+
+		err := service.ChangeDailyDoStatus(createContext("t", true), &request, &response)
+
+		assertError(err, nil, t)
+
+		if fakeTask1.DailyDo != request.Status {
+			t.Errorf("Daily Do hasn't updated: wanted %v got %v", request.Status, fakeTask1.DailyDo)
+		}
 	})
 
 	t.Run("set fakeTask1 for user 1 not as daily do", func(t *testing.T) {
@@ -323,26 +368,6 @@ func TestChangeDailyDoStatus(t *testing.T) {
 			t.Errorf("Daily Do hasn't updated: wanted %v got %v", request.Status, fakeTask1.DailyDo)
 		}
 
-	})
-
-	t.Run("set fakeTask1 for user 1 as daily do", func(t *testing.T) {
-
-		service := createService(false, false, true)
-
-		request := taskPb.DailyDoStatusRequest{
-			TaskId: "123",
-			Status: true,
-		}
-
-		response := taskPb.Response{}
-
-		err := service.ChangeDailyDoStatus(createContext("t", true), &request, &response)
-
-		assertError(err, nil, t)
-
-		if fakeTask1.DailyDo != request.Status {
-			t.Errorf("Daily Do hasn't updated: wanted %v got %v", request.Status, fakeTask1.DailyDo)
-		}
 	})
 }
 
