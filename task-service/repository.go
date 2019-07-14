@@ -143,7 +143,7 @@ func (repo *TaskRepository) GetDailyDoForUser(userID string) (*taskPb.Task, erro
 	var dailyDo *taskPb.Task
 	m := map[string]interface{}{}
 
-	query := repo.Session.Query("SELECT * FROM task WHERE dailyDo = true, userId =? ALLOW FILTERING", userID)
+	query := repo.Session.Query("SELECT * FROM task WHERE dailyDo = true and userId =? ALLOW FILTERING", userID)
 	iterable := query.Consistency(gocql.One).Iter()
 
 	for iterable.MapScan(m) {
@@ -151,10 +151,10 @@ func (repo *TaskRepository) GetDailyDoForUser(userID string) (*taskPb.Task, erro
 			Id:            m["id"].(gocql.UUID).String(),
 			Title:         m["title"].(string),
 			Description:   m["description"].(string),
-			UserId:        m["userId"].(string),
-			CreatedDate:   m["createdDate"].(int64),
-			CompletedDate: m["completedDate"].(int64),
-			DailyDo:       m["dailyDo"].(bool),
+			UserId:        m["userid"].(string),
+			CreatedDate:   m["createddate"].(time.Time).Unix(),
+			CompletedDate: m["completeddate"].(time.Time).Unix(),
+			DailyDo:       m["dailydo"].(bool),
 		}
 	}
 
