@@ -114,13 +114,13 @@ func (repo *TaskRepository) SetDailyDoStatus(task *taskPb.Task) error {
 	var existingTask taskPb.Task
 	m := map[string]interface{}{}
 
-	query := repo.Session.Query("SELECT * FROM task WHERE taskId=? LIMIT 1", task.Id)
+	query := repo.Session.Query("SELECT * FROM task WHERE id = ?", task.Id)
 	iterable := query.Consistency(gocql.One).Iter()
 
 	for iterable.MapScan(m) {
 		found = true
 		existingTask = taskPb.Task{
-			UserId: m["userId"].(string),
+			UserId: m["userid"].(string),
 		}
 	}
 
@@ -175,8 +175,8 @@ func (repo *TaskRepository) CompleteTask(task *taskPb.Task) error {
 	for iterable.MapScan(m) {
 		found = true
 		existingTask = taskPb.Task{
-			UserId:  m["userId"].(string),
-			DailyDo: m["dailyDo"].(bool),
+			UserId:  m["userid"].(string),
+			DailyDo: m["dailydo"].(bool),
 		}
 	}
 
