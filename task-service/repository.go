@@ -189,6 +189,8 @@ func (repo *TaskRepository) CompleteTask(task *taskPb.Task) error {
 	}
 
 	parameters := []string{strconv.FormatInt(task.CompletedDate, 10)}
+
+	// THIS needs fixing to use correct syntax for multiple where clauses
 	queryString := "UPDATE task SET completedDate =?"
 
 	if existingTask.DailyDo != task.DailyDo {
