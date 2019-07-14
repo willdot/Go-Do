@@ -14,7 +14,7 @@ var errTaskUserIDNotMatched = errors.New("The user id for the task provided does
 
 // Repository ..
 type Repository interface {
-	Get(userID string) ([]*taskPb.Task, error)
+	Get(string) ([]*taskPb.Task, error)
 	Create(*taskPb.Task) error
 	Update(*taskPb.Task) error
 	SetDailyDoStatus(*taskPb.Task) error
@@ -138,12 +138,12 @@ func (repo *TaskRepository) SetDailyDoStatus(task *taskPb.Task) error {
 }
 
 // GetDailyDoForUser will get a daily do task for a user
-func (repo *TaskRepository) GetDailyDoForUser(string) (*taskPb.Task, error) {
+func (repo *TaskRepository) GetDailyDoForUser(userID string) (*taskPb.Task, error) {
 
 	var dailyDo *taskPb.Task
 	m := map[string]interface{}{}
 
-	query := repo.Session.Query("SELECT * FROM task WHERE dailyDo=true LIMIT 1")
+	query := repo.Session.Query("SELECT * FROM task WHERE dailyDo=true, userId =? LIMIT 1", userID)
 	iterable := query.Consistency(gocql.One).Iter()
 
 	for iterable.MapScan(m) {
