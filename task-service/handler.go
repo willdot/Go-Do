@@ -47,6 +47,16 @@ func (t *taskHandler) Create(ctx context.Context, req *taskPb.CreateTask, res *t
 		return err
 	}
 
+	existingDailyDo, err := t.repo.GetDailyDoForUser(userID)
+
+	if err != nil {
+		return err
+	}
+
+	if existingDailyDo != nil {
+		return errDailyDoAlreadyExists
+	}
+
 	task := taskPb.Task{
 		Title:       req.Title,
 		Description: req.Description,
