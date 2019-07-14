@@ -169,7 +169,7 @@ func (repo *TaskRepository) CompleteTask(task *taskPb.Task) error {
 	var existingTask taskPb.Task
 	m := map[string]interface{}{}
 
-	query := repo.Session.Query("SELECT * FROM task WHERE taskId=? LIMIT 1", task.Id)
+	query := repo.Session.Query("SELECT * FROM task WHERE id=?", task.Id)
 	iterable := query.Consistency(gocql.One).Iter()
 
 	for iterable.MapScan(m) {
