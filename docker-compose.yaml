@@ -30,7 +30,9 @@ services:
           CORS_ALLOWED_ORIGINS: "http://localhost:3000" 
 
   user-service:
-    build: ./user-service
+    build: 
+      context: ./
+      dockerfile: ./user-service/dockerfile
     ports:
       - 50053:50051
     environment:
@@ -45,7 +47,9 @@ services:
       - cassandra00
 
   task-service:
-    build: ./task-service
+    build:
+      context: ./
+      dockerfile: ./task-service/dockerfile
     ports:
       - 50054:50051
     environment:
