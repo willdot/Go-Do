@@ -53,7 +53,7 @@ Body:
 	"service" : "go_do.auth",
 	"method" : "Auth.ChangePassword",
 	"request" : {
-		"email" : "will7989@hotmail.com",
+		"email" : "will@email.com",
 		"oldPassword" : "password",
 		"newPassword" : "password1"
 	}
